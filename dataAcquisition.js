@@ -72,7 +72,7 @@ function axiosReq() {
                     let y = new Date(d);
                     y.setDate(y.getDate() - 1)
                     let yesterday = y.getFullYear() + '-' + ("0" + (y.getMonth() + 1)).slice(-2) + '-' + ("0" + y.getDate()).slice(-2);
-                    let countcheck = "SELECT COUNT(LayerName) AS rowscount FROM dtrends.layers_test WHERE Date = ?;"
+                    let countcheck = "SELECT COUNT(LayerName) AS rowscount FROM dtrends.covid_19 WHERE Date = ?;"
                     con.query(countcheck, [yesterday], function (err, count) {
                         let countryN;
                         let pointNum = parseFloat(count[0].rowscount);
@@ -88,7 +88,7 @@ function axiosReq() {
                             });
                         } else {
                             for (let i = 0; i < response.data.features.length; i++) {
-                                let continent = "SELECT Continent_name FROM dtrends.Continent WHERE Country LIKE ?;"
+                                let continent = "SELECT Continent_name FROM dtrends.continent WHERE Country LIKE ?;"
                                 let stringx = [response.data.features[i].properties.Country_Region].toString();
                                 if (stringx.includes('(')) {
                                     countryN = stringx.substr(0, stringx.indexOf(' '));
@@ -119,11 +119,11 @@ function axiosReq() {
                                     let d = new Date(parseInt(response.data.features[i].properties.Last_Update));
                                     let date = d.getFullYear() + '-' + ("0" + (d.getMonth() + 1)).slice(-2) + '-' + ("0" + d.getDate()).slice(-2);
                                     let layername = 'coronav_' + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2) + d.getFullYear() + '_' + Country_Region_Province_State;
-                                    let sql = "INSERT INTO dtrends.layers_test(Date, LayerName, LayerType, FirstLayer, SecondLayer, DisplayName, CaseNum, DeathNum, RecovNum," +
+                                    let sql = "INSERT INTO dtrends.covid_19(Date, LayerName, LayerType, FirstLayer, SecondLayer, DisplayName, CaseNum, DeathNum, RecovNum," +
                                         " ActiveNum, Latitude, Longitude,CityName, StateName, CountryName, ContinentName, Color_Confirmed, Color_Death, Color_Recovered) " +
                                         "VALUES (?,?,'H_PKLayer','Corona_Virus','',?,?,?,?,?,?,?,'',?,?,?,'rgb(220,0,0) rgb(220,0,0) rgb(220,0,0)','rgb(0,0,0) rgb(0,0,0) rgb(0,0,0)','rgb(124,252,0) rgb(124,252,0) rgb(124,252,0)'); ";
 
-                                    // let deleting = "DELETE FROM dtrends.layers_test WHERE Date = ?;"
+                                    // let deleting = "DELETE FROM dtrends.covid_19 WHERE Date = ?;"
 
                                     con.query(sql, [date, layername, response.data.features[i].properties.Country_Region.replace(/ /g, "_"), response.data.features[i].properties.Confirmed,
                                         response.data.features[i].properties.Deaths, response.data.features[i].properties.Recovered,
