@@ -4,7 +4,8 @@ const nodemailer = require('nodemailer');
 
 
 const con = mysql.createConnection({
-    host: '10.11.90.16',
+    host: 'localhost',
+    // host: '10.11.90.16',
     user: 'AppUser',
     password: 'Special888%',
     database: 'dtrends'
@@ -18,26 +19,26 @@ const transport = nodemailer.createTransport({
 });
 const mailOptions = {
     from: 'aaaa.zhao@g.northernacademy.org',
-    to: 'yumingxian7012@gmail.com',
+    to: 'yumingxian7012@gmail.com; azhao@northernacademy.org',
     subject: 'Error Appearance From Covid Data Algorithm',
     html: 'Data can not insert.',
 };
 
 const Datalength = {
     from: 'aaaa.zhao@g.northernacademy.org',
-    to: 'yumingxian7012@gmail.com',
+    to: 'yumingxian7012@gmail.com; azhao@northernacademy.org',
     subject: 'Data Length incorrect',
     html: 'Data did not insert.',
 };
 const sqlconnection = {
     from: 'aaaa.zhao@g.northernacademy.org',
-    to: 'yumingxian7012@gmail.com',
+    to: 'yumingxian7012@gmail.com; azhao@northernacademy.org',
     subject: 'SQL Disconnected',
     html: 'SQL Disconnected.',
 };
 const dataerror = {
     from: 'aaaa.zhao@g.northernacademy.org',
-    to: 'yumingxian7012@gmail.com',
+    to: 'yumingxian7012@gmail.com; azhao@northernacademy.org',
     subject: 'Data did not insert correctly.',
     html: 'Data did not insert correctly.',
 };
@@ -48,6 +49,7 @@ let waitTime = 5000;
 let diflimit = 10;
 let intervalTime = 24*60*60;
 let retryNum = 10;
+console.log(intervalTime);
 
 axiosReq();
 setInterval(axiosReq, intervalTime);
