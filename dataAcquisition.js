@@ -4,7 +4,7 @@ const nodemailer = require('nodemailer');
 
 
 const con = mysql.createConnection({
-    host: 'localhost',
+    host: '10.11.90.16',
     // host: '10.11.90.16',
     user: 'AppUser',
     password: 'Special888%',
@@ -32,7 +32,8 @@ const Datalength = {
 };
 const sqlconnection = {
     from: 'aaaa.zhao@g.northernacademy.org',
-    to: 'yumingxian7012@gmail.com; azhao@northernacademy.org',
+    to: 'yumingxian7012@gmail.com;',
+    //azhao@northernacademy.org
     subject: 'SQL Disconnected',
     html: 'SQL Disconnected.',
 };
@@ -47,8 +48,9 @@ const dataerror = {
 let x = 0;
 let waitTime = 5000;
 let diflimit = 10;
-let intervalTime = 24*60*60;
+let intervalTime = 24*60*60*1000;
 let retryNum = 10;
+
 console.log(intervalTime);
 
 axiosReq();
@@ -80,16 +82,86 @@ function axiosReq() {
                         let pointNum = parseFloat(count[0].rowscount);
                         let dif = response.data.features.length - pointNum;// minus yesterdays data length, query
                         if (Math.abs(dif) > diflimit) {
-                            console.log("Differences" + ":" + dif);
-                            transport.sendMail(Datalength, (error, info) => {
-                                if (error) {
-                                    console.log(error);
-                                } else {
-                                    console.log(`Message sent: ${info.response}`);
+                            if(pointNum == 0) {
+                                for(let i = 0;  i< response.data.features.length; i++) {
+                                    let continent = "SELECT Continent_name FROM dtrends.continent WHERE Country LIKE ?;"
+                                    let stringx = [response.data.features[i].properties.Country_Region].toString();
+                                    if (stringx.includes('(')) {
+                                        countryN = stringx.substr(0, stringx.indexOf(' '));
+                                    } else if (stringx.includes(',')) {
+                                        countryN = stringx.substr(0, stringx.indexOf(','));
+                                    } else if (stringx.includes('*')) {
+                                        countryN = stringx.substr(0, stringx.indexOf('*'));
+                                    } else {
+                                        countryN = stringx;
+                                    }
+
+                                    con.query(continent, "%" + countryN + "%", function (err, continents) {
+                                        let Country_Region_Province_State, Province_State, Country_Region_Province_State_Combine;
+                                        if (response.data.features[i].properties.Province_State == null) {
+                                            Province_State = null;
+                                            Country_Region_Province_State = response.data.features[i].properties.Country_Region.replace(/ /g, "_")
+                                        } else {
+                                            Country_Region_Province_State_Combine = response.data.features[i].properties.Country_Region + "_" + response.data.features[i].properties.Province_State;
+                                            Country_Region_Province_State = Country_Region_Province_State_Combine.replace(/ /g, "_")
+                                            Province_State = response.data.features[i].properties.Province_State.replace(/ /g, "_");
+                                        }
+                                        // if (response.data.features[i].properties.Province_State == null) {
+                                        //     let Province_State = null;
+                                        // } else {
+                                        //     let Province_State = response.data.features[i].properties.Province_State.replace(/ /g, "_");
+                                        // }
+                                        console.log(continents);
+
+                                        let d = new Date(parseInt(response.data.features[i].properties.Last_Update));
+                                        let date = d.getFullYear() + '-' + ("0" + (d.getMonth() + 1)).slice(-2) + '-' + ("0" + d.getDate()).slice(-2);
+                                        let layername = 'coronav_' + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2) + d.getFullYear() + '_' + Country_Region_Province_State;
+                                        let sql = "INSERT INTO dtrends.covid_19(Date, LayerName, LayerType, FirstLayer, SecondLayer, DisplayName, CaseNum, DeathNum, RecovNum," +
+                                            " ActiveNum, Latitude, Longitude,CityName, StateName, CountryName, ContinentName, Color_Confirmed, Color_Death, Color_Recovered) " +
+                                            "VALUES (?,?,'H_PKLayer','Corona_Virus','',?,?,?,?,?,?,?,'',?,?,?,'rgb(220,0,0) rgb(220,0,0) rgb(220,0,0)','rgb(0,0,0) rgb(0,0,0) rgb(0,0,0)','rgb(124,252,0) rgb(124,252,0) rgb(124,252,0)'); ";
+
+                                        let deleting = "DELETE FROM dtrends.covid_19 WHERE Date = ?;"
+
+                                        con.query(sql, [date, layername, response.data.features[i].properties.Country_Region.replace(/ /g, "_"), response.data.features[i].properties.Confirmed,
+                                            response.data.features[i].properties.Deaths, response.data.features[i].properties.Recovered,
+                                            response.data.features[i].properties.Active, response.data.features[i].properties.Lat,
+                                            response.data.features[i].properties.Long_, Province_State,
+                                            response.data.features[i].properties.Country_Region.replace(/ /g, "_"), continents[0].Continent_name.replace(/ /g, "_")], function (err, result) {
+
+                                            if (err) {
+                                                transport.sendMail(dataerror, (error, info) => {
+                                                    if (error) {
+                                                        console.log(error);
+                                                    } else {
+                                                        console.log(`Message sent: ${info.response}`);
+                                                    }
+                                                });
+                                            } else {
+                                                console.log(i + "record inserted");
+                                            }
+                                        });
+                                        con.query(deleting, "NaN-aN-aN", function (err, result) {
+
+                                            if (err) {
+                                                console.log(err);
+                                            } else {
+                                                console.log(i + "deleted");
+                                            }
+                                        });
+                                    });
                                 }
-                            });
-                        } else {
-                            for (let i = 0; i < response.data.features.length; i++) {
+                            }else{
+                                console.log("Differences" + ":" + dif);
+                                transport.sendMail(Datalength, (error, info) => {
+                                    if (error) {
+                                        console.log(error);
+                                    } else {
+                                        console.log(`Message sent: ${info.response}`);
+                                    }
+                                });
+                            }
+                        }else{
+                            for(let i = 0; i < response.data.features.length; i++) {
                                 let continent = "SELECT Continent_name FROM dtrends.continent WHERE Country LIKE ?;"
                                 let stringx = [response.data.features[i].properties.Country_Region].toString();
                                 if (stringx.includes('(')) {
@@ -118,6 +190,7 @@ function axiosReq() {
                                     //     let Province_State = response.data.features[i].properties.Province_State.replace(/ /g, "_");
                                     // }
 
+
                                     let d = new Date(parseInt(response.data.features[i].properties.Last_Update));
                                     let date = d.getFullYear() + '-' + ("0" + (d.getMonth() + 1)).slice(-2) + '-' + ("0" + d.getDate()).slice(-2);
                                     let layername = 'coronav_' + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2) + d.getFullYear() + '_' + Country_Region_Province_State;
@@ -125,7 +198,7 @@ function axiosReq() {
                                         " ActiveNum, Latitude, Longitude,CityName, StateName, CountryName, ContinentName, Color_Confirmed, Color_Death, Color_Recovered) " +
                                         "VALUES (?,?,'H_PKLayer','Corona_Virus','',?,?,?,?,?,?,?,'',?,?,?,'rgb(220,0,0) rgb(220,0,0) rgb(220,0,0)','rgb(0,0,0) rgb(0,0,0) rgb(0,0,0)','rgb(124,252,0) rgb(124,252,0) rgb(124,252,0)'); ";
 
-                                    // let deleting = "DELETE FROM dtrends.covid_19 WHERE Date = ?;"
+                                    let deleting = "DELETE FROM dtrends.covid_19 WHERE Date = ?;"
 
                                     con.query(sql, [date, layername, response.data.features[i].properties.Country_Region.replace(/ /g, "_"), response.data.features[i].properties.Confirmed,
                                         response.data.features[i].properties.Deaths, response.data.features[i].properties.Recovered,
@@ -145,6 +218,14 @@ function axiosReq() {
                                             console.log(i + "record inserted");
                                         }
                                     });
+                                    con.query(deleting, "NaN-aN-aN", function (err, result) {
+
+                                        if (err) {
+                                           console.log(err);
+                                        } else {
+                                            console.log(i + "deleted");
+                                        }
+                                    });
                                 });
                             }
                         }
@@ -156,6 +237,7 @@ function axiosReq() {
                 });
         }
     })
+
 }
 
 
