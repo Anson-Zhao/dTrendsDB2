@@ -2,7 +2,6 @@ const axios = require('axios');
 const mysql = require('mysql');
 const nodemailer = require('nodemailer');
 
-
 const con = mysql.createConnection({
     host: 'localhost',
     // host: '10.11.90.16',
