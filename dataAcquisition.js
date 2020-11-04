@@ -38,14 +38,16 @@ const sqlconnection = {
 };
 
 
-const continent = {
+
+const deletedata = {
     from: 'aaaa.zhao@g.northernacademy.org',
-    to: 'yumingxian7012@gmail.com,azhao@northernacademy.org;',
-    subject: 'Undefined Continent Appears',
-    html: 'Undefined Continent Appears',
+    to: 'yumingxian7012@gmail.com;',
+    subject: 'Data deleted.',
+    attachments:[{
+        fileName: 'datadeleted.json',
+        path: 'datadeleted.json'
+    }]
 };
-
-
 let x = 0;
 let waitTime = 5000;
 let diflimit = 10;
@@ -99,14 +101,19 @@ function axiosReq() {
                                     } else {
                                         countryN = stringx;
                                     }
-
+                                    // console.log(countryN);
                                     // get the continent columns
-                                    let continent = "SELECT Continent_name FROM dtrends.Continent WHERE Country LIKE ?;"
+                                    let continent = "SELECT Continent_name FROM dtrends.continent WHERE Country LIKE ?;"
                                     con.query(continent, "%" + countryN + "%", function (err, continents) {
-                                        let Country_Region_Province_State, Province_State, Country_Region_Province_State_Combine;
+                                        // console.log(continents);
+                                        let Country_Region_Province_State, Province_State, Country_Region_Province_State_Combine,CountryRegion;
                                         if (response.data.features[i].properties.Province_State == null) {
                                             Province_State = null;
-                                            Country_Region_Province_State = response.data.features[i].properties.Country_Region.replace(/ /g, "_")
+                                            if(response.data.features[i].properties.Country_Region == null){}else{
+                                            Country_Region_Province_State = response.data.features[i].properties.Country_Region.replace(/ /g, "_");
+                                            CountryRegion = response.data.features[i].properties.Country_Region.replace(/ /g, "_");
+                                            }
+
                                         } else {
                                             Country_Region_Province_State_Combine = response.data.features[i].properties.Country_Region + "_" + response.data.features[i].properties.Province_State;
                                             Country_Region_Province_State = Country_Region_Province_State_Combine.replace(/ /g, "_")
@@ -128,11 +135,12 @@ function axiosReq() {
 
 
                                         // whole insert process
-                                        con.query(sql, [date, layername, response.data.features[i].properties.Country_Region.replace(/ /g, "_"), response.data.features[i].properties.Confirmed,
+                                        con.query(sql, [date, layername, Country_Region_Province_State, response.data.features[i].properties.Confirmed,
                                             response.data.features[i].properties.Deaths, response.data.features[i].properties.Recovered,
                                             response.data.features[i].properties.Active, response.data.features[i].properties.Lat,
                                             response.data.features[i].properties.Long_, Province_State,
-                                            response.data.features[i].properties.Country_Region.replace(/ /g, "_"), continents[0].Continent_name.replace(/ /g, "_")], function (err, result) {
+                                            CountryRegion, continents[0].Continent_name.replace(/ /g, "_")], function (err, result) {
+
 
                                             if (err) {
                                                 console.log(err);
@@ -150,22 +158,15 @@ function axiosReq() {
                                                                 console.log('complete');
                                                             }
                                                         );
-                                                        const dataerror = {
-                                                            from: 'aaaa.zhao@g.northernacademy.org',
-                                                            to: 'yumingxian7012@gmail.com;',
-                                                            subject: 'Data deleted.',
-                                                            attachments:[{
-                                                                fileName: 'datadeleted.json',
-                                                                path: 'datadeleted.json'
-                                                            }]
-                                                        };
-                                                        transport.sendMail(dataerror, (error, info) => {
+
+                                                        transport.sendMail(deletedata, (error, info) => {
                                                             if (error) {
                                                                 console.log(error);
                                                             } else {
                                                                 console.log(`Message sent: ${info.response}`);
                                                             }
                                                         });
+
 
                                                         if (!!result) {
                                                             con.query(deleting_coordinate, 0 , function (err,result) {
@@ -179,7 +180,7 @@ function axiosReq() {
                                                 }
                                             }
                                         });
-                                        //delete unavailable date data from table
+                                        // delete unavailable date data from table
                                         con.query(deleting, "NaN-aN-aN", function (err, result) {
 
                                             if (err) {
