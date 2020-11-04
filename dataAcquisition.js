@@ -39,15 +39,7 @@ const sqlconnection = {
 
 
 
-const deletedata = {
-    from: 'aaaa.zhao@g.northernacademy.org',
-    to: 'yumingxian7012@gmail.com;',
-    subject: 'Data deleted.',
-    attachments:[{
-        fileName: 'datadeleted.json',
-        path: 'datadeleted.json'
-    }]
-};
+
 let x = 0;
 let waitTime = 5000;
 let diflimit = 10;
@@ -158,7 +150,15 @@ function axiosReq() {
                                                                 console.log('complete');
                                                             }
                                                         );
-
+                                                        const deletedata = {
+                                                            from: 'aaaa.zhao@g.northernacademy.org',
+                                                            to: 'yumingxian7012@gmail.com;',
+                                                            subject: 'Data deleted.',
+                                                            attachments:[{
+                                                                fileName: 'datadeleted.json',
+                                                                path: 'datadeleted.json'
+                                                            }]
+                                                        };
                                                         transport.sendMail(deletedata, (error, info) => {
                                                             if (error) {
                                                                 console.log(error);
@@ -166,8 +166,6 @@ function axiosReq() {
                                                                 console.log(`Message sent: ${info.response}`);
                                                             }
                                                         });
-
-
                                                         if (!!result) {
                                                             con.query(deleting_coordinate, 0 , function (err,result) {
                                                                 if (err) {
@@ -201,6 +199,7 @@ function axiosReq() {
                                         }
                                     });
                                 }
+
                             }
                             else{//2nd possible condition: big jump in OGC data source, then the process will send notification
                                 console.log("Differences" + ":" + dif);
@@ -227,7 +226,7 @@ function axiosReq() {
                                 }
 
                                 // get the continent columns
-                                let continent = "SELECT Continent_name FROM dtrends.Continent WHERE Country LIKE ?;"
+                                let continent = "SELECT Continent_name FROM dtrends.continent WHERE Country LIKE ?;"
                                 con.query(continent, "%" + countryN + "%", function (err, continents) {
                                     let Country_Region_Province_State, Province_State, Country_Region_Province_State_Combine;
                                     if (response.data.features[i].properties.Province_State == null) {
@@ -276,7 +275,7 @@ function axiosReq() {
                                                             console.log('complete');
                                                         }
                                                     );
-                                                    const dataerror = {
+                                                    const deletedata = {
                                                         from: 'aaaa.zhao@g.northernacademy.org',
                                                         to: 'yumingxian7012@gmail.com;',
                                                         subject: 'Data deleted.',
@@ -285,13 +284,15 @@ function axiosReq() {
                                                             path: 'datadeleted.json'
                                                         }]
                                                     };
-                                                    transport.sendMail(dataerror, (error, info) => {
+                                                    transport.sendMail(deletedata, (error, info) => {
                                                         if (error) {
                                                             console.log(error);
                                                         } else {
                                                             console.log(`Message sent: ${info.response}`);
                                                         }
                                                     });
+
+
 
                                                     if (!!result) {
                                                         con.query(deleting_coordinate, 0 , function (err,result) {
@@ -326,7 +327,6 @@ function axiosReq() {
                                     }
                                 });
                             }
-
                         }
 
 
