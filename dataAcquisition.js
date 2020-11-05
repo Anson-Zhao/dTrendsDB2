@@ -45,7 +45,7 @@ const errMsg_UndefinedCont = {
     html: 'Undefined Continent Appears',
 };
 
-const dataerror = {
+const dataErr = {
     from: 'aaaa.zhao@g.northernacademy.org',
     to: 'yumingxian7012@gmail.com;azhao@northernacademy.org;',
     subject: 'Data deleted.',
@@ -56,8 +56,8 @@ const dataerror = {
 };
 
 let x = 0;
-let waitTime = 5000;
-let diflimit = 25;
+let waitTime = 30000;
+let difLimit = 25;
 let intervalTime = 24 * 60 * 60 * 1000;
 let retryNum = 10;
 
@@ -93,8 +93,8 @@ function axiosReq() {
                         let pointNum = parseFloat(count[0].rowscount);
                         let dif = response.data.features.length - pointNum;
 
-                        //if the absolute value of difference larger than diflimit, it still has two condition
-                        if (Math.abs(dif) > diflimit) {
+                        //if the absolute value of difference larger than difLimit, it still has two condition
+                        if (Math.abs(dif) > difLimit) {
                             if (pointNum == 0) {
                                 //1st condition: start the process with an empty table
                                 dataProcessing(response);
@@ -110,7 +110,7 @@ function axiosReq() {
                                 });
                             }
                         } else {
-                            //else: the absolute value of difference smaller than diflimit, run insert statement
+                            //else: the absolute value of difference smaller than difLimit, run insert statement
                             dataProcessing(response);
                         }
                     });
@@ -191,7 +191,7 @@ function dataProcessing(download) {
                                 }
                             );
 
-                            transport.sendMail(dataerror, (error, info) => {
+                            transport.sendMail(dataErr, (error, info) => {
                                 if (error) {
                                     console.log(error);
                                 } else {
