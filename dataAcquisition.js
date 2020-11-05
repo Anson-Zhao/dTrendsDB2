@@ -45,10 +45,19 @@ const errMsg_UndefinedCont = {
     html: 'Undefined Continent Appears',
 };
 
+const dataerror = {
+    from: 'aaaa.zhao@g.northernacademy.org',
+    to: 'yumingxian7012@gmail.com;azhao@northernacademy.org;',
+    subject: 'Data deleted.',
+    attachments: [{
+        fileName: 'datadeleted.json',
+        path: 'datadeleted.json'
+    }]
+};
 
 let x = 0;
 let waitTime = 5000;
-let diflimit = 10;
+let diflimit = 25;
 let intervalTime = 24 * 60 * 60 * 1000;
 let retryNum = 10;
 
@@ -83,6 +92,7 @@ function axiosReq() {
                     con.query(countcheck, [yesterday], async function (err, count) {//check data length
                         let pointNum = parseFloat(count[0].rowscount);
                         let dif = response.data.features.length - pointNum;
+
                         //if the absolute value of difference larger than diflimit, it still has two condition
                         if (Math.abs(dif) > diflimit) {
                             if (pointNum == 0) {
@@ -129,12 +139,15 @@ function dataProcessing(download) {
         }
 
         // get the continent columns
-        let continent = "SELECT Continent_name FROM dtrends.Continent WHERE Country LIKE ?;"
+        let continent = "SELECT Continent_name FROM dtrends.continent WHERE Country LIKE ?;"
         con.query(continent, "%" + countryN + "%", function (err, continents) {
-            let Country_Region_Province_State, Province_State, Country_Region_Province_State_Combine;
+            let Country_Region_Province_State, Province_State, Country_Region_Province_State_Combine,CountryRegion;
             if (download.data.features[i].properties.Province_State == null) {
                 Province_State = null;
-                Country_Region_Province_State = download.data.features[i].properties.Country_Region.replace(/ /g, "_")
+                if(download.data.features[i].properties.Country_Region == null){}else{
+                    Country_Region_Province_State = download.data.features[i].properties.Country_Region.replace(/ /g, "_");
+                    CountryRegion = download.data.features[i].properties.Country_Region.replace(/ /g, "_");
+                }
             } else {
                 Country_Region_Province_State_Combine = download.data.features[i].properties.Country_Region + "_" + download.data.features[i].properties.Province_State;
                 Country_Region_Province_State = Country_Region_Province_State_Combine.replace(/ /g, "_")
@@ -155,11 +168,11 @@ function dataProcessing(download) {
                 "VALUES (?,?,'H_PKLayer','Corona_Virus','',?,?,?,?,?,?,?,'',?,?,?,'rgb(220,0,0) rgb(220,0,0) rgb(220,0,0)','rgb(0,0,0) rgb(0,0,0) rgb(0,0,0)','rgb(124,252,0) rgb(124,252,0) rgb(124,252,0)'); ";
 
             // whole insert process
-            con.query(sql, [date, layername, download.data.features[i].properties.Country_Region.replace(/ /g, "_"), download.data.features[i].properties.Confirmed,
+            con.query(sql, [date, layername, CountryRegion, download.data.features[i].properties.Confirmed,
                 download.data.features[i].properties.Deaths, download.data.features[i].properties.Recovered,
                 download.data.features[i].properties.Active, download.data.features[i].properties.Lat,
                 download.data.features[i].properties.Long_, Province_State,
-                download.data.features[i].properties.Country_Region.replace(/ /g, "_"), continents[0].Continent_name.replace(/ /g, "_")], function (err, result) {
+                CountryRegion, continents[0].Continent_name.replace(/ /g, "_")], function (err, result) {
 
                 if (err) {
                     console.log(err);
@@ -177,15 +190,7 @@ function dataProcessing(download) {
                                     console.log('complete');
                                 }
                             );
-                            const dataerror = {
-                                from: 'aaaa.zhao@g.northernacademy.org',
-                                to: 'yumingxian7012@gmail.com;',
-                                subject: 'Data deleted.',
-                                attachments: [{
-                                    fileName: 'datadeleted.json',
-                                    path: 'datadeleted.json'
-                                }]
-                            };
+
                             transport.sendMail(dataerror, (error, info) => {
                                 if (error) {
                                     console.log(error);
@@ -217,7 +222,7 @@ function dataProcessing(download) {
 
             if (err) {//send notification if the continents acquirement has problems
                 console.log(err);
-                transport.sendMail(continent, (error, info) => {
+                transport.sendMail(errMsg_UndefinedCont, (error, info) => {
                     if (error) {
                         console.log(error);
                     } else {
