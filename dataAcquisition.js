@@ -2,10 +2,11 @@ const axios = require('axios');
 const mysql = require('mysql');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
+const cron = require('node-cron');
 
 const con = mysql.createConnection({
-    host: '10.11.90.16',
-    // host: 'localhost',
+    // host: '10.11.90.16',
+    host: 'localhost',
     user: 'AppUser',
     password: 'Special888%',
     database: 'dtrends'
@@ -58,13 +59,17 @@ const dataErr = {
 let x = 0;
 let waitTime = 30000;
 let difLimit = 25;
-let intervalTime = 24 * 60 * 60 * 1000;
+// let intervalTime = 24 * 60 * 60 * 1000;
 let retryNum = 10;
 
-console.log(intervalTime);
+// Schedule tasks to be run on the server.
+cron.schedule('16 22 * * *', function() {
+    console.log(new Date());
+    axiosReq();
+});
 
-axiosReq();
-setInterval(axiosReq, intervalTime);//make sure the function runs once per day
+
+// setInterval(axiosReq, intervalTime);//make sure the function runs once per day
 
 
 function axiosReq() {
