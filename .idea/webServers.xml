@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="a151fba0-d784-4ff5-a10b-94a3ecf608b2" name="dTrendsDB2">
+        <fileTransfer rootFolder="/var/www/dtrends/dTrendsDB2" accessType="SFTP" host="aworldbridgelabs.com" port="5532" sshConfigId="1ea641b2-4c9d-406a-9ff7-7a8ec464d639" sshConfig="ansonz@aworldbridgelabs.com:5532 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

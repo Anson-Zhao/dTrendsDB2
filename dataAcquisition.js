@@ -63,7 +63,7 @@ let difLimit = 25;
 let retryNum = 10;
 
 // Schedule tasks to be run on the server.
-cron.schedule('16 22 * * *', function() {
+cron.schedule('45 22 * * *', function() {
     console.log(new Date());
     axiosReq();
 });
@@ -182,7 +182,7 @@ function dataProcessing(download) {
                 if (err) {
                     console.log(err);
                 } else {
-                    console.log(i + "record inserted");
+                    // console.log(i + "record inserted");
                     // delete the wrong coordinates rows, and send specific values notification
                     if (i == download.data.features.length - 1) {
                         let deleting_coordinate_email = "SELECT * FROM dtrends.covid_19 WHERE Latitude iS NULL OR Latitude = ?;"
