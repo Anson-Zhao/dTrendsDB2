@@ -162,12 +162,6 @@ function dataProcessing(download) {
                 }
             }
 
-            // if (download.data.features[i].properties.Province_State == null) {
-            //     let Province_State = null;
-            // } else {
-            //     let Province_State = download.data.features[i].properties.Province_State.replace(/ /g, "_");
-            // }
-
             let deleting = "DELETE FROM dtrends.covid_19 WHERE Date = ?;"
             let d = new Date(parseInt(download.data.features[i].properties.Last_Update));
             let date = d.getFullYear() + '-' + ("0" + (d.getMonth() + 1)).slice(-2) + '-' + ("0" + d.getDate()).slice(-2);
