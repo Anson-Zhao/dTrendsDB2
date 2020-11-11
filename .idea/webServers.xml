@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="dec4bec8-48c8-44d4-a5e1-19dc540a04f1" name="awb">
+        <fileTransfer rootFolder="/var/www/dtrends" accessType="SFTP" host="aworldbridgelabs.com" port="5532" sshConfigId="8d64e483-83ce-4287-bded-c17f838596c5" sshConfig="ansonz@aworldbridgelabs.com:5532 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
