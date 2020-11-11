@@ -2,10 +2,11 @@ const axios = require('axios');
 const mysql = require('mysql');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
+const cron = require('node-cron');
 
 const con = mysql.createConnection({
+    // host: '10.11.90.16',
     host: '10.11.90.16',
-    // host: 'localhost',
     user: 'AppUser',
     password: 'Special888%',
     database: 'dtrends'
@@ -58,13 +59,17 @@ const dataErr = {
 let x = 0;
 let waitTime = 30000;
 let difLimit = 25;
-let intervalTime = 24 * 60 * 60 * 1000;
+// let intervalTime = 24 * 60 * 60 * 1000;
 let retryNum = 10;
 
-console.log(intervalTime);
+// Schedule tasks to be run on the server.
+// cron.schedule('45 22 * * *', function() {
+//     console.log(new Date());
+//     axiosReq();
+// });
 
 axiosReq();
-setInterval(axiosReq, intervalTime);//make sure the function runs once per day
+// setInterval(axiosReq, intervalTime);//make sure the function runs once per day
 
 
 function axiosReq() {
@@ -142,17 +147,21 @@ function dataProcessing(download) {
         let continent = "SELECT Continent_name FROM dtrends.continent WHERE Country LIKE ?;"
         con.query(continent, "%" + countryN + "%", function (err, continents) {
             let Country_Region_Province_State, Province_State, Country_Region_Province_State_Combine,CountryRegion;
-            if (download.data.features[i].properties.Province_State == null) {
-                Province_State = null;
-                if(download.data.features[i].properties.Country_Region == null){}else{
+
+            CountryRegion = download.data.features[i].properties.Country_Region.replace(/ /g, "_");
+
+            if(download.data.features[i].properties.Country_Region !== null){
+
+                if (download.data.features[i].properties.Province_State == null) {
                     Country_Region_Province_State = download.data.features[i].properties.Country_Region.replace(/ /g, "_");
-                    CountryRegion = download.data.features[i].properties.Country_Region.replace(/ /g, "_");
+                    Province_State = null;
+                } else {
+                    Country_Region_Province_State_Combine = download.data.features[i].properties.Country_Region + "_" + download.data.features[i].properties.Province_State;
+                    Country_Region_Province_State = Country_Region_Province_State_Combine.replace(/ /g, "_");
+                    Province_State = download.data.features[i].properties.Province_State.replace(/ /g, "_");
                 }
-            } else {
-                Country_Region_Province_State_Combine = download.data.features[i].properties.Country_Region + "_" + download.data.features[i].properties.Province_State;
-                Country_Region_Province_State = Country_Region_Province_State_Combine.replace(/ /g, "_")
-                Province_State = download.data.features[i].properties.Province_State.replace(/ /g, "_");
             }
+
             // if (download.data.features[i].properties.Province_State == null) {
             //     let Province_State = null;
             // } else {
@@ -168,7 +177,7 @@ function dataProcessing(download) {
                 "VALUES (?,?,'H_PKLayer','Corona_Virus','',?,?,?,?,?,?,?,'',?,?,?,'rgb(220,0,0) rgb(220,0,0) rgb(220,0,0)','rgb(0,0,0) rgb(0,0,0) rgb(0,0,0)','rgb(124,252,0) rgb(124,252,0) rgb(124,252,0)'); ";
 
             // whole insert process
-            con.query(sql, [date, layername, CountryRegion, download.data.features[i].properties.Confirmed,
+            con.query(sql, [date, layername, Country_Region_Province_State, download.data.features[i].properties.Confirmed,
                 download.data.features[i].properties.Deaths, download.data.features[i].properties.Recovered,
                 download.data.features[i].properties.Active, download.data.features[i].properties.Lat,
                 download.data.features[i].properties.Long_, Province_State,
@@ -177,7 +186,7 @@ function dataProcessing(download) {
                 if (err) {
                     console.log(err);
                 } else {
-                    console.log(i + "record inserted");
+                    // console.log(i + "record inserted");
                     // delete the wrong coordinates rows, and send specific values notification
                     if (i == download.data.features.length - 1) {
                         let deleting_coordinate_email = "SELECT * FROM dtrends.covid_19 WHERE Latitude iS NULL OR Latitude = ?;"

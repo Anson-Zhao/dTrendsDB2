@@ -2,8 +2,8 @@
 <project version="4">
   <component name="WebServers">
     <option name="servers">
-      <webServer id="dec4bec8-48c8-44d4-a5e1-19dc540a04f1" name="awb">
-        <fileTransfer rootFolder="/var/www/dtrends" accessType="SFTP" host="aworldbridgelabs.com" port="5532" sshConfigId="8d64e483-83ce-4287-bded-c17f838596c5" sshConfig="ansonz@aworldbridgelabs.com:5532 password">
+      <webServer id="a151fba0-d784-4ff5-a10b-94a3ecf608b2" name="dTrendsDB2">
+        <fileTransfer rootFolder="/var/www/dtrends/dTrendsDB2" accessType="SFTP" host="aworldbridgelabs.com" port="5532" sshConfigId="1ea641b2-4c9d-406a-9ff7-7a8ec464d639" sshConfig="ansonz@aworldbridgelabs.com:5532 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>

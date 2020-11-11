@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" host="aworldbridgelabs.com" id="1ea641b2-4c9d-406a-9ff7-7a8ec464d639" port="5532" nameFormat="DESCRIPTIVE" username="ansonz" />
+    </configs>
+  </component>
+</project>
