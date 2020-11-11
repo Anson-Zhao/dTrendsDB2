@@ -5,8 +5,8 @@ const fs = require('fs');
 const cron = require('node-cron');
 
 const con = mysql.createConnection({
-    // host: '10.11.90.16',
     host: '10.11.90.16',
+    // host: 'localhost',
     user: 'AppUser',
     password: 'Special888%',
     database: 'dtrends'
@@ -63,15 +63,12 @@ let difLimit = 25;
 let retryNum = 10;
 
 // Schedule tasks to be run on the server.
-// cron.schedule('45 22 * * *', function() {
-//     console.log(new Date());
-//     axiosReq();
-// });
+cron.schedule('45 22 * * *', function() {
+    // console.log(new Date());
+    axiosReq();
+});
 
-axiosReq();
 // setInterval(axiosReq, intervalTime);//make sure the function runs once per day
-
-
 function axiosReq() {
     //check connection for mysql, if err,send notification
     con.connect(function (err) {
@@ -253,4 +250,3 @@ function Timeout() {
         }
     }, waitTime);
 }
-
