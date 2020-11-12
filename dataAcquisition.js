@@ -132,7 +132,6 @@ function dataProcessing(download) {
     for (let i = 0; i < download.data.features.length; i++) {
 
 
-
         // acquire data from OGC, make sure the data format is correct
         let stringx = [download.data.features[i].properties.Country_Region].toString();
         if (stringx.includes('(')) {
