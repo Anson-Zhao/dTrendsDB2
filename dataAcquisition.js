@@ -63,10 +63,12 @@ let difLimit = 25;
 let retryNum = 10;
 
 // Schedule tasks to be run on the server.
-cron.schedule('45 22 * * *', function() {
-    // console.log(new Date());
-    axiosReq();
-});
+// cron.schedule('45 22 * * *', function() {
+//     // console.log(new Date());
+//     axiosReq();
+// });
+
+axiosReq()
 
 // setInterval(axiosReq, intervalTime);//make sure the function runs once per day
 function axiosReq() {
@@ -90,7 +92,7 @@ function axiosReq() {
                     y.setDate(y.getDate() - 1)
                     //get yesterday's date
                     let yesterday = y.getFullYear() + '-' + ("0" + (y.getMonth() + 1)).slice(-2) + '-' + ("0" + y.getDate()).slice(-2);
-                    let countcheck = "SELECT COUNT(LayerName) AS rowscount FROM dtrends.covid_19 WHERE Date = ?;"
+                    let countcheck = "SELECT COUNT(LayerName) AS rowscount FROM dtrends.covid_19_test WHERE Date = ?;"
                     con.query(countcheck, [yesterday], async function (err, count) {//check data length
                         let pointNum = parseFloat(count[0].rowscount);
                         let dif = response.data.features.length - pointNum;
@@ -131,7 +133,9 @@ function dataProcessing(download) {
         // acquire data from OGC, make sure the data format is correct
         let stringx = [download.data.features[i].properties.Country_Region].toString();
         if (stringx.includes('(')) {
+            console.log(stringx);
             countryN = stringx.substr(0, stringx.indexOf(' '));
+            console.log(countryN);
         } else if (stringx.includes(',')) {
             countryN = stringx.substr(0, stringx.indexOf(','));
         } else if (stringx.includes('*')) {
@@ -146,6 +150,7 @@ function dataProcessing(download) {
             let Country_Region_Province_State, Province_State, Country_Region_Province_State_Combine,CountryRegion;
 
             CountryRegion = download.data.features[i].properties.Country_Region.replace(/ /g, "_");
+            console.log(CountryRegion);
 
             if(download.data.features[i].properties.Country_Region !== null){
 
@@ -159,11 +164,11 @@ function dataProcessing(download) {
                 }
             }
 
-            let deleting = "DELETE FROM dtrends.covid_19 WHERE Date = ?;"
+            let deleting = "DELETE FROM dtrends.covid_19_test WHERE Date = ?;"
             let d = new Date(parseInt(download.data.features[i].properties.Last_Update));
             let date = d.getFullYear() + '-' + ("0" + (d.getMonth() + 1)).slice(-2) + '-' + ("0" + d.getDate()).slice(-2);
             let layername = 'coronav_' + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2) + d.getFullYear() + '_' + Country_Region_Province_State;
-            let sql = "INSERT INTO dtrends.covid_19(Date, LayerName, LayerType, FirstLayer, SecondLayer, DisplayName, CaseNum, DeathNum, RecovNum," +
+            let sql = "INSERT INTO dtrends.covid_19_test(Date, LayerName, LayerType, FirstLayer, SecondLayer, DisplayName, CaseNum, DeathNum, RecovNum," +
                 " ActiveNum, Latitude, Longitude,CityName, StateName, CountryName, ContinentName, Color_Confirmed, Color_Death, Color_Recovered) " +
                 "VALUES (?,?,'H_PKLayer','Corona_Virus','',?,?,?,?,?,?,?,'',?,?,?,'rgb(220,0,0) rgb(220,0,0) rgb(220,0,0)','rgb(0,0,0) rgb(0,0,0) rgb(0,0,0)','rgb(124,252,0) rgb(124,252,0) rgb(124,252,0)'); ";
 
@@ -180,8 +185,8 @@ function dataProcessing(download) {
                     // console.log(i + "record inserted");
                     // delete the wrong coordinates rows, and send specific values notification
                     if (i == download.data.features.length - 1) {
-                        let deleting_coordinate_email = "SELECT * FROM dtrends.covid_19 WHERE Latitude iS NULL OR Latitude = ?;"
-                        let deleting_coordinate = "DELETE FROM dtrends.covid_19 WHERE Latitude iS NULL OR Latitude = ?;"
+                        let deleting_coordinate_email = "SELECT * FROM dtrends.covid_19_test WHERE Latitude iS NULL OR Latitude = ?;"
+                        let deleting_coordinate = "DELETE FROM dtrends.covid_19_test WHERE Latitude iS NULL OR Latitude = ?;"
 
                         con.query(deleting_coordinate_email, 0, function (err, result) {
                             let rowsdeleted = JSON.stringify(result);
