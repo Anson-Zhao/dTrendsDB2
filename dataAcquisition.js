@@ -11,6 +11,7 @@ const con = mysql.createConnection({
     password: 'Special888%',
     database: 'dtrends'
 });
+
 const transport = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -18,6 +19,7 @@ const transport = nodemailer.createTransport({
         pass: 'qwer1234',
     },
 });
+
 const errMsg_Download = {
     from: 'aaaa.zhao@g.northernacademy.org',
     to: 'yumingxian7012@gmail.com; azhao@northernacademy.org',
@@ -31,13 +33,13 @@ const errMsg_DataLength = {
     subject: 'Data Length incorrect',
     html: 'Data did not insert.',
 };
+
 const errMsg_sqlConnection = {
     from: 'aaaa.zhao@g.northernacademy.org',
     to: 'yumingxian7012@gmail.com,azhao@northernacademy.org;',
     subject: 'SQL Disconnected',
     html: 'SQL Disconnected.',
 };
-
 
 const errMsg_UndefinedCont = {
     from: 'aaaa.zhao@g.northernacademy.org',
@@ -150,14 +152,13 @@ function dataProcessing(download) {
 
             let Country_Region_Province_State, Province_State, Counrty_Region, Country_Region_Province_State_Combine,CountryRegion;
             if(download.data.features[i].properties.Country_Region !== null){
-                Counrty_Region = download.data.features[i].properties.Country_Region.replace(/[^a-zA-Z ]/g, "");
+                Counrty_Region = download.data.features[i].properties.Country_Region.replace(/[^a-zA-Z0-9 ]/g, "");
 
             }//Get the country region that only has not null value
 
-
             if(download.data.features[i].properties.Province_State !== null){
                 //if province state is not null, then delete all special character, and put underscore instead of space.
-                Province_State = download.data.features[i].properties.Province_State.replace(/[^a-zA-Z ]/g, "");
+                Province_State = download.data.features[i].properties.Province_State.replace(/[^a-zA-Z0-9 ]/g, "");
                 Country_Region_Province_State_Combine = Counrty_Region + "_" + Province_State;
                 Country_Region_Province_State = Country_Region_Province_State_Combine.replace(/ /g, "_");
                 Province_State = Province_State.replace(/ /g, "_");
