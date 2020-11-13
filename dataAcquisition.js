@@ -5,12 +5,13 @@ const fs = require('fs');
 const cron = require('node-cron');
 
 const con = mysql.createConnection({
-    // host: '10.11.90.16',
-    host: 'localhost',
+    host: '10.11.90.16',
+    // host: 'localhost',
     user: 'AppUser',
     password: 'Special888%',
     database: 'dtrends'
 });
+
 const transport = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -18,6 +19,7 @@ const transport = nodemailer.createTransport({
         pass: 'qwer1234',
     },
 });
+
 const errMsg_Download = {
     from: 'aaaa.zhao@g.northernacademy.org',
     to: 'yumingxian7012@gmail.com; azhao@northernacademy.org',
@@ -31,13 +33,13 @@ const errMsg_DataLength = {
     subject: 'Data Length incorrect',
     html: 'Data did not insert.',
 };
+
 const errMsg_sqlConnection = {
     from: 'aaaa.zhao@g.northernacademy.org',
     to: 'yumingxian7012@gmail.com,azhao@northernacademy.org;',
     subject: 'SQL Disconnected',
     html: 'SQL Disconnected.',
 };
-
 
 const errMsg_UndefinedCont = {
     from: 'aaaa.zhao@g.northernacademy.org',
@@ -64,14 +66,11 @@ let retryNum = 10;
 
 // Schedule tasks to be run on the server.
 cron.schedule('30 22 * * *', function() {
-    console.log(new Date());
+   // console.log(new Date());
     axiosReq();
 });
 
-
 // setInterval(axiosReq, intervalTime);//make sure the function runs once per day
-
-
 function axiosReq() {
     //check connection for mysql, if err,send notification
     con.connect(function (err) {
@@ -91,6 +90,7 @@ function axiosReq() {
                     let d = new Date();
                     let y = new Date(d);
                     y.setDate(y.getDate() - 1)
+
                     //get yesterday's date
                     let yesterday = y.getFullYear() + '-' + ("0" + (y.getMonth() + 1)).slice(-2) + '-' + ("0" + y.getDate()).slice(-2);
                     let countcheck = "SELECT COUNT(LayerName) AS rowscount FROM dtrends.covid_19 WHERE Date = ?;"
@@ -130,6 +130,7 @@ function axiosReq() {
 
 function dataProcessing(download) {
     let countryN;
+
     for (let i = 0; i < download.data.features.length; i++) {
         // acquire data from OGC, make sure the data format is correct
         let stringx = [download.data.features[i].properties.Country_Region].toString();
@@ -146,23 +147,26 @@ function dataProcessing(download) {
         // get the continent columns
         let continent = "SELECT Continent_name FROM dtrends.continent WHERE Country LIKE ?;"
         con.query(continent, "%" + countryN + "%", function (err, continents) {
-            let Country_Region_Province_State, Province_State, Country_Region_Province_State_Combine,CountryRegion;
-            if (download.data.features[i].properties.Province_State == null) {
+
+            let Country_Region_Province_State, Province_State, Counrty_Region, Country_Region_Province_State_Combine,CountryRegion;
+            if(download.data.features[i].properties.Country_Region !== null){
+                Counrty_Region = download.data.features[i].properties.Country_Region.replace(/[^a-zA-Z0-9 ]/g, "");
+
+            }//Get the country region that only has not null value
+
+            if(download.data.features[i].properties.Province_State !== null){
+                //if province state is not null, then delete all special character, and put underscore instead of space.
+                Province_State = download.data.features[i].properties.Province_State.replace(/[^a-zA-Z0-9 ]/g, "");
+                Country_Region_Province_State_Combine = Counrty_Region + "_" + Province_State;
+                Country_Region_Province_State = Country_Region_Province_State_Combine.replace(/ /g, "_");
+                Province_State = Province_State.replace(/ /g, "_");
+            }else{
+                //if province state = null, then null, and the combination will be only country region
+                Country_Region_Province_State = Counrty_Region.replace(/ /g, "_");
                 Province_State = null;
-                if(download.data.features[i].properties.Country_Region == null){}else{
-                    Country_Region_Province_State = download.data.features[i].properties.Country_Region.replace(/ /g, "_");
-                    CountryRegion = download.data.features[i].properties.Country_Region.replace(/ /g, "_");
-                }
-            } else {
-                Country_Region_Province_State_Combine = download.data.features[i].properties.Country_Region + "_" + download.data.features[i].properties.Province_State;
-                Country_Region_Province_State = Country_Region_Province_State_Combine.replace(/ /g, "_")
-                Province_State = download.data.features[i].properties.Province_State.replace(/ /g, "_");
             }
-            // if (download.data.features[i].properties.Province_State == null) {
-            //     let Province_State = null;
-            // } else {
-            //     let Province_State = download.data.features[i].properties.Province_State.replace(/ /g, "_");
-            // }
+            CountryRegion = Counrty_Region.replace(/ /g, "_");
+            // console.log(Counrty_Region,"+",Province_State, "+",CountryRegion, i);
 
             let deleting = "DELETE FROM dtrends.covid_19 WHERE Date = ?;"
             let d = new Date(parseInt(download.data.features[i].properties.Last_Update));
@@ -173,7 +177,7 @@ function dataProcessing(download) {
                 "VALUES (?,?,'H_PKLayer','Corona_Virus','',?,?,?,?,?,?,?,'',?,?,?,'rgb(220,0,0) rgb(220,0,0) rgb(220,0,0)','rgb(0,0,0) rgb(0,0,0) rgb(0,0,0)','rgb(124,252,0) rgb(124,252,0) rgb(124,252,0)'); ";
 
             // whole insert process
-            con.query(sql, [date, layername, CountryRegion, download.data.features[i].properties.Confirmed,
+            con.query(sql, [date, layername, Country_Region_Province_State, download.data.features[i].properties.Confirmed,
                 download.data.features[i].properties.Deaths, download.data.features[i].properties.Recovered,
                 download.data.features[i].properties.Active, download.data.features[i].properties.Lat,
                 download.data.features[i].properties.Long_, Province_State,
@@ -211,21 +215,20 @@ function dataProcessing(download) {
                                     }
                                     console.log("Deleted.");
                                 });
+                                con.query(deleting, "NaN-aN-aN", function (err, result) {
+                                    //delete unavailable date data from table
+                                    if (err) {
+                                        console.log(err);
+                                    }
+                                });
                             }
                         });
                     }
                 }
             });
 
-            //delete unavailable date data from table
-            con.query(deleting, "NaN-aN-aN", function (err, result) {
-
-                if (err) {
-                    console.log(err);
-                }
-            });
-
-            if (err) {//send notification if the continents acquirement has problems
+            if (err) {
+                //send notification if the continents acquirement has problems
                 console.log(err);
                 transport.sendMail(errMsg_UndefinedCont, (error, info) => {
                     if (error) {
@@ -255,4 +258,3 @@ function Timeout() {
         }
     }, waitTime);
 }
-
