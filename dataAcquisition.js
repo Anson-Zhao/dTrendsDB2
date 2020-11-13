@@ -60,7 +60,7 @@ const dataErr = {
 
 let x = 0;
 let waitTime = 30000;
-let difLimit = 50;
+let difLimit = 80;
 // let intervalTime = 24 * 60 * 60 * 1000;
 let retryNum = 10;
 
