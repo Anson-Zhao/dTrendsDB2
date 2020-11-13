@@ -58,12 +58,12 @@ const dataErr = {
 
 let x = 0;
 let waitTime = 30000;
-let difLimit = 25;
+let difLimit = 50;
 // let intervalTime = 24 * 60 * 60 * 1000;
 let retryNum = 10;
 
 // Schedule tasks to be run on the server.
-cron.schedule('45 22 * * *', function() {
+cron.schedule('30 22 * * *', function() {
     console.log(new Date());
     axiosReq();
 });
