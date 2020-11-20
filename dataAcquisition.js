@@ -70,7 +70,6 @@ cron.schedule('30 22 * * *', function() {
     axiosReq();
 });
 
-
 // setInterval(axiosReq, intervalTime);//make sure the function runs once per day
 function axiosReq() {
     //check connection for mysql, if err,send notification
@@ -173,8 +172,7 @@ function dataProcessing(download) {
                 Province_State = null;
             }
             CountryRegion = Counrty_Region.replace(/ /g, "_");
-            // console.log(Counrty_Region,"+",Province_State, "+",Country_Region_Province_State, i);
-
+            // console.log(Counrty_Region,"+",Province_State, "+",CountryRegion, i);
 
             let deleting = "DELETE FROM dtrends.covid_19 WHERE Date = ?;"
             let d = new Date(parseInt(download.data.features[i].properties.Last_Update));
