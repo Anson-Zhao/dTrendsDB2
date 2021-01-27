@@ -65,10 +65,12 @@ let difLimit = 80;
 let retryNum = 10;
 
 // Schedule tasks to be run on the server.
-cron.schedule('00 22 * * *', function() {
+cron.schedule('00 20 * * *', function() {
     // console.log(new Date());
     axiosReq();
 });
+
+// axiosReq();
 
 // setInterval(axiosReq, intervalTime);//make sure the function runs once per day
 function axiosReq() {
