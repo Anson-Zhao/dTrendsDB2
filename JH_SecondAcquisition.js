@@ -5,8 +5,8 @@ const fs = require('fs');
 const cron = require('node-cron');
 
 const con = mysql.createConnection({
-    // host: '10.11.90.16',
-    host: 'localhost',
+    // host: '10.11.90.16',localhost
+    host: '10.11.90.16',
     user: 'AppUser',
     password: 'Special888%',
     database: 'dtrends'
@@ -185,7 +185,7 @@ function dataProcessing(download) {
         // //Province States
         if (nameArr[2] === ' ') {
             Province_State = '';
-        } else if (nameArr[2].includes('(') || nameArr[2].includes('.') || nameArr[2].includes("'") || nameArr[2].includes('-')|| nameArr[2].includes('"')) {
+        } else if (nameArr[2].includes('(') || nameArr[2].includes('.') || nameArr[2].includes("'") || nameArr[2].includes('-')|| nameArr[2].includes('"')||nameArr[2].includes(",")) {
             Province_State = nameArr[2].replace(/[^a-zA-Z0-9 ]/g, "");
             Province_State = Province_State.replace(/ /g, "_");
         } else {
@@ -196,7 +196,7 @@ function dataProcessing(download) {
         // //County
         if (nameArr[1] === ' ') {
             County = '';
-        } else if (nameArr[1].includes('(') || nameArr[1].includes('.') || nameArr[1].includes("'") || nameArr[1].includes('-')) {
+        } else if (nameArr[1].includes('(') || nameArr[1].includes('.') || nameArr[1].includes("'") || nameArr[1].includes('-')||nameArr[1].includes(',') ) {
             County = nameArr[1].replace(/[^a-zA-Z0-9 ]/g, "");
             County = County.replace(/ /g, "_");
         } else {
