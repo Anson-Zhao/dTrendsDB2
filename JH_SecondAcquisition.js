@@ -67,7 +67,7 @@ let retryNum = 10;
 console.log(new Date());
 let newdate = new Date();
 //("0" + newdate.getDate()).slice(-2) + "-"+("0" + (newdate.getMonth() + 1)).slice(-2) + "-"+ newdate.getFullYear();
-let getdataDate = "12-31-2020";
+let getdataDate = ("0" + (newdate.getMonth() + 1)).slice(-2) +"-"+("0" + (newdate.getDate()-1)).slice(-2) +  "-"+ newdate.getFullYear();
 let link ='https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/'+getdataDate+'.csv'
 // Schedule tasks to be run on the server.
 // cron.schedule('30 22 * * *', function() {
