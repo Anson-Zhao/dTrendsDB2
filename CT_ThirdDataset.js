@@ -31,6 +31,7 @@ con.query(Sec_Data,Date_n,function (err, Sec_Data) {
 
             });
         }
+        //what
         // console.log(Sec_Data[1].LayerName);
         // console.log(First_Data[1].LayerName);
         // SELECT dtrends.Test1.id,dtrends.Test1.Name
