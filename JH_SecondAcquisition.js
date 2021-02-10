@@ -67,7 +67,8 @@ let retryNum = 10;
 console.log(new Date());
 let newdate = new Date();
 //("0" + newdate.getDate()).slice(-2) + "-"+("0" + (newdate.getMonth() + 1)).slice(-2) + "-"+ newdate.getFullYear();
-let getdataDate = ("0" + (newdate.getMonth() + 1)).slice(-2) +"-"+("0" + (newdate.getDate()-1)).slice(-2) +  "-"+ newdate.getFullYear();
+let getdataDate ="01-18-2021"
+    // ("0" + (newdate.getMonth() + 1)).slice(-2) +"-"+("0" + (newdate.getDate()-1)).slice(-2) +  "-"+ newdate.getFullYear();
 let link ='https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/'+getdataDate+'.csv'
 // Schedule tasks to be run on the server.
 // cron.schedule('30 22 * * *', function() {
@@ -179,13 +180,13 @@ function dataProcessing(download) {
         let Last_Update = String(nameArr[4]);
         Last_Update = Last_Update.substr(0, nameArr[4].indexOf(' '));
         let date = new Date(Last_Update);
-        let layernameDate = ("0" + (date.getDate()+1)).slice(-2) + ("0" + (date.getMonth() + 1)).slice(-2) + date.getFullYear();
+        let layernameDate = ("0" + (date.getMonth() + 1)).slice(-2) +("0" + (date.getDate()+1)).slice(-2) +  date.getFullYear();
         //
         //
         // //Province States
         if (nameArr[2] === ' ') {
             Province_State = '';
-        } else if (nameArr[2].includes('(') || nameArr[2].includes('.') || nameArr[2].includes("'") || nameArr[2].includes('-')|| nameArr[2].includes('"')||nameArr[2].includes(",")) {
+        } else if (nameArr[2].includes('(') || nameArr[2].includes('.') || nameArr[2].includes("'") || nameArr[2].includes('-')|| nameArr[2].includes('"')||nameArr[2].includes(",")||nameArr[2].includes('*') ) {
             Province_State = nameArr[2].replace(/[^a-zA-Z0-9 ]/g, "");
             Province_State = Province_State.replace(/ /g, "_");
         } else {
@@ -196,7 +197,7 @@ function dataProcessing(download) {
         // //County
         if (nameArr[1] === ' ') {
             County = '';
-        } else if (nameArr[1].includes('(') || nameArr[1].includes('.') || nameArr[1].includes("'") || nameArr[1].includes('-')||nameArr[1].includes(',') ) {
+        } else if (nameArr[1].includes('(') || nameArr[1].includes('.') || nameArr[1].includes("'") || nameArr[1].includes('-')||nameArr[1].includes(',')||nameArr[1].includes('*')  ) {
             County = nameArr[1].replace(/[^a-zA-Z0-9 ]/g, "");
             County = County.replace(/ /g, "_");
         } else {
@@ -259,7 +260,7 @@ function dataProcessing(download) {
                         let deleting_coordinate_email = "SELECT * FROM dtrends.covid_19_test WHERE Latitude iS NULL OR Latitude = ?;"
                         let deleting_coordinate = "DELETE FROM dtrends.covid_19_test WHERE Latitude iS NULL OR Latitude = ?;"
 
-                        con.query(deleting_coordinate_email, ["0"], function (err, result) {
+                        con.query(deleting_coordinate_email, 0, function (err, result) {
                             let rowsdeleted = JSON.stringify(result);
                             fs.writeFile("datadeleted.json", rowsdeleted, function (err) {
                                     if (err) throw err;
@@ -276,7 +277,7 @@ function dataProcessing(download) {
                             });
 
                             if (!!result) {
-                                con.query(deleting_coordinate, ["0"], function (err, result) {
+                                con.query(deleting_coordinate, 0, function (err, result) {
                                     if (err) {
                                         console.log(err);
                                     }
