@@ -34,14 +34,37 @@ con.query(Sec_Data,Date_n,function (err, Sec_Data) {
         //what
         // console.log(Sec_Data[1].LayerName);
         // console.log(First_Data[1].LayerName);
-        // SELECT dtrends.Test1.id,dtrends.Test1.Name
+        // SELECT dtrends.Test1.id,dtrends.Test1.Name,dtrends.Test1.TableNum
         // FROM  dtrends.Test1
         // LEFT JOIN  dtrends.Test2 ON  dtrends.Test1.id   =  dtrends.Test2.id
         // UNION
-        // SELECT dtrends.Test2.id, dtrends.Test2.Name
+        // SELECT dtrends.Test2.id, dtrends.Test2.Name,dtrends.Test2.TabelNum
         // FROM  dtrends.Test2
         // LEFT JOIN  dtrends.Test1 ON  dtrends.Test2.id =  dtrends.Test1.id
+        //SELECT * FROM dtrends.Test2;
         //
+        // SELECT dtrends.Test1.id,dtrends.Test2.id,dtrends.Test1.Name,dtrends.Test2.Name,dtrends.Test1.TableNum,dtrends.Test2.TabelNum
+        // FROM  dtrends.Test1
+        // LEFT JOIN  dtrends.Test2 ON  dtrends.Test2.Name = dtrends.Test1.Name
+        // WHERE dtrends.Test1.id   <>  dtrends.Test2.id;
+        //
+        // SELECT dtrends.Test1.id,dtrends.Test1.Name
+        // FROM  dtrends.Test1
+        // LEFT JOIN  dtrends.Test2 ON dtrends.Test1.id   <>  dtrends.Test2.id WHERE dtrends.Test2.Name <> dtrends.Test1.Name
+        // UNION
+        // SELECT dtrends.Test2.id, dtrends.Test2.Name
+        // FROM  dtrends.Test2
+        // LEFT JOIN  dtrends.Test1 ON  dtrends.Test2.id <> dtrends.Test1.id WHERE dtrends.Test2.Name <> dtrends.Test1.Name;
+        //
+        // Select * From dtrends.Test1,  dtrends.Test2 WHERE dtrends.Test1.id   <>  dtrends.Test2.id;
+        //
+        //
+        // select dtrends.Test2.id, dtrends.Test2.Name
+        // from dtrends.Test2
+        // union all
+        // select dtrends.Test1.id,dtrends.Test1.Name
+        // from dtrends.Test1
+        // where not exists (select 1 from dtrends.Test2,dtrends.Test1 where dtrends.Test2.id =dtrends.Test1.id);
 
 
     });
