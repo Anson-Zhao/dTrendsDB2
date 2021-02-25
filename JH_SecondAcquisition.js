@@ -67,7 +67,7 @@ let retryNum = 10;
 console.log(new Date());
 let newdate = new Date();
 //("0" + newdate.getDate()).slice(-2) + "-"+("0" + (newdate.getMonth() + 1)).slice(-2) + "-"+ newdate.getFullYear();
-let getdataDate ="01-18-2021"
+let getdataDate ="12-19-2020"
     // ("0" + (newdate.getMonth() + 1)).slice(-2) +"-"+("0" + (newdate.getDate()-1)).slice(-2) +  "-"+ newdate.getFullYear();
 let link ='https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/'+getdataDate+'.csv'
 // Schedule tasks to be run on the server.
@@ -100,7 +100,7 @@ function axiosReq() {
 
                     //get yesterday's date
                     let yesterday = y.getFullYear() + '-' + ("0" + (y.getMonth() + 1)).slice(-2) + '-' + ("0" + y.getDate()).slice(-2);
-                    let countcheck = "SELECT COUNT(LayerName) AS rowscount FROM dtrends.covid_19_test WHERE Date = ?;"
+                    let countcheck = "SELECT COUNT(LayerName) AS rowscount FROM dtrends.covid_19_JH WHERE Date = ?;"
                     con.query(countcheck, [yesterday], async function (err, count) {//check data length
                         let pointNum = parseFloat(count[0].rowscount);
                         let dif = response.length - pointNum;
@@ -142,7 +142,7 @@ function dataProcessing(download) {
     let csvdata = download.data;
     var Arr = csvdata.split("\n");
 
-    for (let i = 1; i < Arr.length; i++) {
+    for (let i = 0; i < Arr.length; i++) {
         let Country_Name,Province_State, County, Layer_Name,DisplayName;
         var nameArr = Arr[i].split(',');
 
@@ -247,7 +247,10 @@ function dataProcessing(download) {
 
             // console.log(ContinentName);
 
-            let sql = "INSERT INTO dtrends.covid_19_test(Date, LayerName, LayerType, FirstLayer, DisplayName, CaseNum, DeathNum, RecovNum," +
+            let sql = "INSERT INTO dtrends.covid_19_JH(Date, LayerName, LayerType, FirstLayer, DisplayName, CaseNum, DeathNum, RecovNum," +
+                " ActiveNum, Latitude, Longitude,CityName, StateName, CountryName, ContinentName, Color_Confirmed, Color_Death, Color_Recovered) " +
+                "VALUES (?,?,'H_PKLayer','Corona_Virus',?,?,?,?,?,?,?,?,?,?,?,'rgb(220,0,0) rgb(220,0,0) rgb(220,0,0)','rgb(0,0,0) rgb(0,0,0) rgb(0,0,0)','rgb(124,252,0) rgb(124,252,0) rgb(124,252,0)'); ";
+            let Third_data = "INSERT INTO dtrends.covid_19_Final(Date, LayerName, LayerType, FirstLayer, DisplayName, CaseNum, DeathNum, RecovNum," +
                 " ActiveNum, Latitude, Longitude,CityName, StateName, CountryName, ContinentName, Color_Confirmed, Color_Death, Color_Recovered) " +
                 "VALUES (?,?,'H_PKLayer','Corona_Virus',?,?,?,?,?,?,?,?,?,?,?,'rgb(220,0,0) rgb(220,0,0) rgb(220,0,0)','rgb(0,0,0) rgb(0,0,0) rgb(0,0,0)','rgb(124,252,0) rgb(124,252,0) rgb(124,252,0)'); ";
 
@@ -257,8 +260,9 @@ function dataProcessing(download) {
                     console.log(err);
                 } else {
                     if (i === Arr.length -2) {
-                        let deleting_coordinate_email = "SELECT * FROM dtrends.covid_19_test WHERE Latitude iS NULL OR Latitude = ?;"
-                        let deleting_coordinate = "DELETE FROM dtrends.covid_19_test WHERE Latitude iS NULL OR Latitude = ?;"
+                        let deleting_coordinate_email = "SELECT * FROM dtrends.covid_19_JH WHERE Latitude iS NULL OR Latitude = ?;"
+                        let deleting_coordinate = "DELETE FROM dtrends.covid_19_JH WHERE Latitude iS NULL OR Latitude = ?;"
+                        let deleting_Date = "DELETE FROM dtrends.covid_19_JH WHERE Date <> ?;"
 
                         con.query(deleting_coordinate_email, 0, function (err, result) {
                             let rowsdeleted = JSON.stringify(result);
@@ -283,13 +287,63 @@ function dataProcessing(download) {
                                     }
                                     console.log("Deleted.");
                                 });
+                                con.query(deleting_Date, Last_Update, function (err, result) {
+                                    if (err) {
+                                        console.log(err);
+                                    }
+                                    console.log("Deleted.");
+                                });
 
                             }
                         });
                     }
                 }
             });
+            con.query(Third_data,[Last_Update, Layer_Name,DisplayName,Confirmed,Death,Recovered,Active,Lat,Long, County, Province_State,Country_Name,ContinentName], function (err, result) {
+                if (err) {
+                    console.log(err);
+                }else{
+                    if (i === Arr.length -2) {
+                        let deleting_coordinate_email_Final = "SELECT * FROM dtrends.covid_19_Final WHERE Latitude iS NULL OR Latitude = ?;"
+                        let deleting_coordinate_Final = "DELETE FROM dtrends.covid_19_Final WHERE Latitude iS NULL OR Latitude = ?;"
+                        let deleting_Date_Final = "DELETE FROM dtrends.covid_19_Final WHERE Date <> ?;"
 
+                        con.query(deleting_coordinate_email_Final, 0, function (err, result) {
+                            let rowsdeleted = JSON.stringify(result);
+                            fs.writeFile("datadeleted.json", rowsdeleted, function (err) {
+                                    if (err) throw err;
+                                    console.log('complete');
+                                }
+                            );
+
+                            transport.sendMail(dataErr, (error, info) => {
+                                if (error) {
+                                    console.log(error);
+                                } else {
+                                    console.log(`Message sent: ${info.response}`);
+                                }
+                            });
+
+                            if (!!result) {
+                                con.query(deleting_coordinate_Final, 0, function (err, result) {
+                                    if (err) {
+                                        console.log(err);
+                                    }
+                                    console.log("Deleted.");
+                                });
+                                con.query(deleting_Date_Final, Last_Update, function (err, result) {
+                                    if (err) {
+                                        console.log(err);
+                                    }
+                                    console.log("Deleted.");
+                                });
+
+                            }
+                        });
+                    }
+
+                }
+            });
             if (err) {
                 //send notification if the continents acquirement has problems
                 console.log(err);
