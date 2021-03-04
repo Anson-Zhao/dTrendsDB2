@@ -119,10 +119,8 @@ function axiosReq(link) {
                         if (Math.abs(dif) > difLimit) {
                             if (pointNum == 0) {
                                 //1st condition: start the process with an empty table
-                                let x = dataProcessing(response);
-                                if(x == 1){
-                                    // con.end();
-                                }
+                                dataProcessing(response);
+
                             } else {
                                 //2nd possible condition: big jump in OGC data source, then the process will send notification
                                 console.log("Differences" + ":" + dif);
@@ -136,10 +134,8 @@ function axiosReq(link) {
                             }
                         } else {
                             //else: the absolute value of difference smaller than difLimit, run insert statement
-                            let x = dataProcessing(response);
-                            if(x == 1){
-                                // con.end();
-                            }
+                            dataProcessing(response);
+
 
 
                         }
@@ -153,7 +149,6 @@ function axiosReq(link) {
 
 }
 function dataProcessing(download) {
-    let num = 1;
     let csvdata = download.data;
     var Arr = csvdata.split("\n");
     // Arr.length
